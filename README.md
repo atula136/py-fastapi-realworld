@@ -1,3 +1,5 @@
+## Prj
+```
 realworld_api/
 ├── alembic/                 # Database migrations
 ├── app/
@@ -36,8 +38,17 @@ realworld_api/
 ├── alembic.ini              # Alembic configuration
 ├── requirements.txt         # Project dependencies
 ├── README.md                # Project documentation
+```
 
+## ENV
+create .env
+```
+database_url = "sqlite:///database.db"
 
+SECRET_KEY = "your-secret-key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+```
 
 ## Alembic Setup
 pip install alembic
