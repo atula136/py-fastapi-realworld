@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class TodoCreate(BaseModel):
     title: str
@@ -13,5 +13,5 @@ class TodoResponse(TodoCreate):
     id: int
     completed: bool
 
-    class Config:
+    class Config(ConfigDict):
         from_attributes = True

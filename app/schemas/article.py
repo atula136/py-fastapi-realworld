@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from .user import UserResponse
 
@@ -15,11 +15,11 @@ class ArticleResponse(ArticleBase):
     slug: str
     author: UserResponse
 
-    class Config:
+    class Config(ConfigDict):
         from_attributes = True
 
 class TagResponse(BaseModel):
     name: str
 
-    class Config:
+    class Config(ConfigDict):
         from_attributes = True

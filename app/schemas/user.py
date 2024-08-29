@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, HttpUrl
+from pydantic import BaseModel, ConfigDict, EmailStr, HttpUrl
 from typing import Optional
 
 class UserBase(BaseModel):
@@ -21,7 +21,7 @@ class UserResponse(UserBase):
     id: int
     token: str
 
-    class Config:
+    class Config(ConfigDict):
         from_attributes = True
 
 class UserCreateWrapper(BaseModel):

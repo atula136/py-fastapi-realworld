@@ -9,7 +9,7 @@ def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
 
 def get_user_by_email(db: Session, email: str):
-    return db.query(User).filter(User.email == email).first()
+    return db.query(User).filter(User.email.ilike(email)).first()
 
 def create_user(db: Session, user: UserCreate):
     db_user = User(**user.model_dump())
