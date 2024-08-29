@@ -59,7 +59,7 @@ async def update_user_profile(user: UserUpdateWrapper,
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username already in use."
         )
-    if user_data.email and user_data.email != current_user.email and get_user_by_email(db, email=user_data.email):
+    if user_data.email and user_data.email.lower() != current_user.email.lower() and get_user_by_email(db, email=user_data.email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already in use."

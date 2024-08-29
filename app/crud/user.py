@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.db.models import User
 from app.schemas.user import UserCreate, UserUpdate
@@ -6,7 +7,9 @@ def get_user_by_id(db: Session, user_id: int):
     return db.query(User).filter(User.id == user_id).first()
 
 def get_user_by_username(db: Session, username: str):
-    return db.query(User).filter(User.username == username).first()
+    # return db.query(User).filter(User.username == username).first()
+    # case-sensitive
+    return db.query(User).filter(func.binary(User.username) == username).first()
 
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email.ilike(email)).first()

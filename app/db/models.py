@@ -6,19 +6,27 @@ class TodoItem(Base):
     __tablename__ = "todos"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    description = Column(String)
+    title = Column(String(255), index=True)
+    description = Column(Text)
     completed = Column(Boolean, default=False)
 
 class User(Base):
     __tablename__ = "users"
 
+    # id = Column(Integer, primary_key=True, index=True)
+    # username = Column(String, unique=True, index=True)
+    # email = Column(String, unique=True, index=True)
+    # password = Column(String)
+    # bio = Column(Text, nullable=True)
+    # image = Column(String, nullable=True)
+
+    # MySQL
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    email = Column(String, unique=True, index=True)
-    password = Column(String)
+    username = Column(String(50), unique=True, index=True, nullable=False)
+    email = Column(String(100), unique=True, index=True, nullable=False)
+    password = Column(String(255), nullable=False)
     bio = Column(Text, nullable=True)
-    image = Column(String, nullable=True)
+    image = Column(String(255), nullable=True)
 
     articles = relationship("Article", back_populates="author")
     comments = relationship("Comment", back_populates="author")
@@ -27,8 +35,8 @@ class Article(Base):
     __tablename__ = "articles"
 
     id = Column(Integer, primary_key=True, index=True)
-    slug = Column(String, unique=True, index=True)
-    title = Column(String)
+    slug = Column(String(255), unique=True, index=True, nullable=False)
+    title = Column(String(255))
     description = Column(Text)
     body = Column(Text)
     author_id = Column(Integer, ForeignKey("users.id"))
@@ -53,7 +61,7 @@ class Tag(Base):
     __tablename__ = "tags"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
+    name = Column(String(255), unique=True, index=True)
 
     articles = relationship("Article", secondary="article_tags", back_populates="tags")
 
