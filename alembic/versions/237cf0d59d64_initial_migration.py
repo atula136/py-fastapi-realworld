@@ -1,8 +1,8 @@
 """Initial migration
 
-Revision ID: e2e853957099
+Revision ID: 237cf0d59d64
 Revises: 
-Create Date: 2024-08-29 10:26:33.880263
+Create Date: 2024-08-29 13:54:14.428754
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'e2e853957099'
+revision: str = '237cf0d59d64'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -60,6 +60,12 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_articles_id'), 'articles', ['id'], unique=False)
     op.create_index(op.f('ix_articles_slug'), 'articles', ['slug'], unique=True)
+    op.create_table('follows',
+    sa.Column('follower_id', sa.Integer(), nullable=True),
+    sa.Column('followed_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['followed_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['follower_id'], ['users.id'], )
+    )
     op.create_table('article_tags',
     sa.Column('article_id', sa.Integer(), nullable=True),
     sa.Column('tag_id', sa.Integer(), nullable=True),
@@ -84,6 +90,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_comments_id'), table_name='comments')
     op.drop_table('comments')
     op.drop_table('article_tags')
+    op.drop_table('follows')
     op.drop_index(op.f('ix_articles_slug'), table_name='articles')
     op.drop_index(op.f('ix_articles_id'), table_name='articles')
     op.drop_table('articles')

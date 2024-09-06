@@ -1,9 +1,11 @@
+python-dotenv
 fastapi
 uvicorn
 pydantic
 pydantic-settings
 pydantic[email]
 sqlalchemy
+sqlalchemy-utils
 pymysql
 pyjwt
 python-jose

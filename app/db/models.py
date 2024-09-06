@@ -10,6 +10,14 @@ class TodoItem(Base):
     description = Column(Text)
     completed = Column(Boolean, default=False)
 
+# Association table for many-to-many relationship
+follows = Table(
+    'follows',
+    Base.metadata,
+    Column('follower_id', Integer, ForeignKey('users.id')),
+    Column('followed_id', Integer, ForeignKey('users.id'))
+)
+
 class User(Base):
     __tablename__ = "users"
 
@@ -30,6 +38,15 @@ class User(Base):
 
     articles = relationship("Article", back_populates="author")
     comments = relationship("Comment", back_populates="author")
+
+    # Self-referential many-to-many relationship
+    following = relationship(
+        'User',
+        secondary=follows,
+        primaryjoin=id == follows.c.follower_id,
+        secondaryjoin=id == follows.c.followed_id,
+        backref='followers'
+    )
 
 class Article(Base):
     __tablename__ = "articles"

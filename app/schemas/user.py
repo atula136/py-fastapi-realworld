@@ -39,3 +39,15 @@ class UserLogin(BaseModel):
 
 class UserLoginWrapper(BaseModel):
     user: UserLogin
+
+class Profile(BaseModel):
+    username: str
+    bio: Optional[str] = None
+    image: Optional[HttpUrl] = None
+    following: bool
+
+    class Config:
+        from_attributes = True
+
+class ProfileResponseWrapper(BaseModel):
+    profile: Profile

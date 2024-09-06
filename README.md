@@ -43,7 +43,7 @@ realworld_api/
 ## ENV
 create .env
 ```
-database_url = "sqlite:///database.db"
+DATABASE_URL = "sqlite:///database.db"
 
 SECRET_KEY = "your-secret-key"
 ALGORITHM = "HS256"

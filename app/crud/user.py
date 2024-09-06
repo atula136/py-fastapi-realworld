@@ -29,3 +29,18 @@ def update_user(db:Session, db_user: User, user_update: UserUpdate) -> User:
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def follow_user(db: Session, current_user: User, user_to_follow: User) -> User:
+    if user_to_follow not in current_user.following:
+        current_user.following.append(user_to_follow)
+        db.commit()
+    return user_to_follow
+
+def unfollow_user(db: Session, current_user: User, user_to_unfollow: User) -> User:
+    if user_to_unfollow in current_user.following:
+        current_user.following.remove(user_to_unfollow)
+        db.commit()
+    return user_to_unfollow
+
+def is_following(db: Session, current_user: User, user_to_check: User) -> bool:
+    return user_to_check in current_user.following

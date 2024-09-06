@@ -6,7 +6,7 @@ from app.crud.user import get_user_by_email, get_user_by_username, create_user, 
 from app.core.security.jwt import create_access_token, get_password_hash, verify_password
 from ..deps import get_db, get_current_user
 
-router = APIRouter(prefix="/api/users", tags=["users"])
+router = APIRouter()
 
 # Helper functions
 def create_access_token_for_user(user_id: int) -> str:
@@ -38,15 +38,19 @@ async def register_user(user: UserCreateWrapper, db: Session = Depends(get_db)):
 
 @router.post("/login/", response_model=UserResponseWrapper)
 async def login_user(user: UserLoginWrapper, db: Session = Depends(get_db)):
+    print("NEIT - start login", user)
+    print(f"Session ID in login route: {id(db)}")
     user_data = user.user
     db_user = get_user_or_404(db, email=user_data.email)
     if not verify_password(user_data.password, db_user.password):
+        print("NEIT - error login", user_data.password)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Incorrect email or password"
         )
     db_user.token = create_access_token_for_user(db_user.id)
 
+    print("NEIT - success login", db_user)
     return build_user_response(db_user)
 
 @router.put("/", response_model=UserResponseWrapper)
