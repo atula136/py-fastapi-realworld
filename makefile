@@ -18,9 +18,7 @@ test/down:
 	ENVIRONMENT=test docker-compose --env-file .env.test --profile test down -v
 
 dev/up:
-	ENVIRONMENT=dev alembic upgrade head
-	ENVIRONMENT=dev docker-compose --env-file .env.dev --profile dev up -d
-	ENVIRONMENT=dev uvicorn app.main:app --reload --env-file .env.dev
+	ENVIRONMENT=dev docker-compose --env-file .env.dev --profile dev up --build -d app
 
 dev/down:
 	ENVIRONMENT=dev docker-compose --env-file .env.dev --profile dev down

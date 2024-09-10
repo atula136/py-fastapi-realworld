@@ -1,4 +1,5 @@
 from sqlalchemy import func
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.db.models import User
 from app.schemas.user import UserCreate, UserUpdate
@@ -7,9 +8,37 @@ def get_user_by_id(db: Session, user_id: int):
     return db.query(User).filter(User.id == user_id).first()
 
 def get_user_by_username(db: Session, username: str):
-    # return db.query(User).filter(User.username == username).first()
     # case-sensitive
-    return db.query(User).filter(func.binary(User.username) == username).first()
+    # only work for MySQL
+    # return db.query(User).filter(func.binary(User.username) == username).first()
+    # work for SQLite
+    # return db.query(User).filter(User.username.collate("binary") == username).first()
+    
+    # Determine the dialect being used
+    dialect = db.bind.dialect.name
+    
+    # Different queries for MySQL and SQLite
+    if dialect == 'mysql':
+        sql = text(
+            """
+            SELECT * FROM users
+            WHERE BINARY username = :username
+            LIMIT 1
+            """
+        )
+    elif dialect == 'sqlite':
+        sql = text(
+            """
+            SELECT * FROM users
+            WHERE username COLLATE BINARY = :username
+            LIMIT 1
+            """
+        )
+    else:
+        raise NotImplementedError(f"Database dialect '{dialect}' is not supported.")
+
+    result = db.execute(sql, {'username': username}).fetchone()
+    return result
 
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email.ilike(email)).first()

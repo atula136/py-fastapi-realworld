@@ -1,0 +1,24 @@
+FROM python:3.12-slim
+
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y curl && \
+    curl -sSLO https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz && \
+    tar -xzf dockerize-linux-amd64-v0.6.1.tar.gz && \
+    mv dockerize /usr/local/bin/ && \
+    rm dockerize-linux-amd64-v0.6.1.tar.gz
+
+# Set the working directory
+WORKDIR /app
+
+# Copy application code
+COPY . /app
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Run Alembic migrations and then start the Uvicorn server
+ENTRYPOINT ["dockerize", "-wait", "tcp://db_dev:3306", "-timeout", "60s", "sh", "-c", "alembic upgrade head && uvicorn app.main:app --reload --env-file .env.dev --host 0.0.0.0 --port 8000"]
+
+# Expose the port Uvicorn will run on
+EXPOSE 8000
