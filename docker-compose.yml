@@ -3,6 +3,10 @@ version: "3.8"
 services:
   db:
     image: mysql:8.0
+    container_name: "db_dev"
+    env_file:
+      - path: "./.env.dev"
+        required: true
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
@@ -11,15 +15,64 @@ services:
     ports:
       - "${DB_PORT}:3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data_dev:/var/lib/mysql"
     profiles:
-      - ${ENVIRONMENT}  # Profile based on environment variable
+      - dev  # Profile based on environment variable
     networks:
-      - backend_network
+      - dev_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+
+  db_test:
+    image: mysql:8.0
+    container_name: db_test
+    env_file:
+      - path: ./.env.test
+        required: true
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - db_data_test:/var/lib/mysql"
+    profiles:
+      - test  # Profile based on environment variable
+    networks:
+      - test_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+
+    # Application service where tests will run
+  tests:
+    build:
+      context: .
+      dockerfile: ./app/tests/Dockerfile
+    depends_on:
+      db_test:
+        condition: service_healthy  # Ensure db is ready before running tests
+    env_file:
+      - path: ./.env.test
+        required: true
+    volumes:
+      - .:/app  # Mount the app source code
+    networks:
+      - test_network
+    profiles:
+      - test
 
 networks:
-  backend_network:
+  dev_network:
+    driver: bridge
+  test_network:
     driver: bridge
 
 volumes:
-  db_data:
+  db_data_dev:
+  db_data_test:

@@ -6,6 +6,7 @@ pydantic-settings
 pydantic[email]
 sqlalchemy
 sqlalchemy-utils
+cryptography
 pymysql
 pyjwt
 python-jose

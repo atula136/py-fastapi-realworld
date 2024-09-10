@@ -8,15 +8,22 @@ migrations:
 	alembic upgrade head
 
 local:
-	uvicorn app.main:app --reload --env-file .env.local
+	ENVIRONMENT=local alembic upgrade head
+	ENVIRONMENT=local uvicorn app.main:app --reload --env-file .env.local
 
 test/up:
-	docker-compose --env-file .env.test --profile test up --build
-	pytest --env-file .env.test
+	ENVIRONMENT=test docker-compose --env-file .env.test --profile test up --build -d
+
+test/down:
+	ENVIRONMENT=test docker-compose --env-file .env.test --profile test down -v
 
 dev/up:
-	docker-compose --env-file .env.dev --profile dev up --build
-	uvicorn app.main:app --reload --env-file .env.dev
+	ENVIRONMENT=dev alembic upgrade head
+	ENVIRONMENT=dev docker-compose --env-file .env.dev --profile dev up -d
+	ENVIRONMENT=dev uvicorn app.main:app --reload --env-file .env.dev
+
+dev/down:
+	ENVIRONMENT=dev docker-compose --env-file .env.dev --profile dev down
 
 test:
-	pytest --cov=app -s -v
+	ENVIRONMENT=test python -m pytest --cov=app -s -v
