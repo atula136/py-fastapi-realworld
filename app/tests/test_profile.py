@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models import User
 from app.schemas.user import UserCreate
-from app.core.security.jwt import create_access_token, get_password_hash
+from app.core.security.jwt import create_access_token, get_password_hash, verify_password
 from app.crud.user import create_user
 
 @pytest.fixture()
@@ -20,7 +20,6 @@ def test_user(db_session: Session):
     user_data = UserCreate(**user_data)
     user_data.password = get_password_hash(user_data.password)
     user = create_user(db_session, user_data)
-    print(f"Session ID in create user: {id(db_session)}")
     return user
 
 # @pytest.fixture
@@ -38,18 +37,15 @@ def test_user(db_session: Session):
 #     return user
 
 def test_login(test_client, db_session, test_user: User):
-    print(f"Session ID in test setup: {id(db_session)}")
 
     url = "/api/users/login/"
-    print(f"Request URL: {url}")
     response = test_client.post(url, json={
         "user": {
-            "email": "test@example.com",
-            "password": "password123"
+            "email": test_user.email,
+            "password": "password123",
         }
     })
     
-    print(f"Response: {response.json()}")
     assert response.status_code == 200
 
 
@@ -60,11 +56,12 @@ def test_follow_user(test_client: TestClient, db_session: Session, test_user: Us
     # Authenticate the user and obtain a token
     response = test_client.post("/api/users/login", json={
         "user": {
-            "email": "test@example.com",
-            "password": "password123"
+            "email": test_user.email,
+            "password": "password123",
         }
     })
-    print("NEIT", response.json())
+    # Check if the response is successful
+    assert response.status_code == 200, f"Login failed: {response.json()}"
     token = response.json()["user"]["token"]
 
     # Follow another user
@@ -72,11 +69,17 @@ def test_follow_user(test_client: TestClient, db_session: Session, test_user: Us
     db_session.add(User(username=follow_username, email="other@example.com", password="password456"))
     db_session.commit()
 
+    # Query the newly added user to ensure they exist
+    followed_user = db_session.query(User).filter_by(username=follow_username).first()
+    assert followed_user is not None, "The user to follow was not found in the database."
+
+    # Follow the new user
     response = test_client.post(f"/api/profiles/{follow_username}/follow", headers={
         "Authorization": f"Token {token}"
     })
 
-    assert response.status_code == 200
+    # Assert the follow was successful
+    assert response.status_code == 200, f"Following user failed: {response.json()}"
     assert response.json()["profile"]["username"] == follow_username
     assert response.json()["profile"]["following"] is True
 
@@ -87,8 +90,8 @@ def test_unfollow_user(test_client: TestClient, db_session: Session, test_user: 
     # Authenticate the user and obtain a token
     response = test_client.post("/api/users/login", json={
         "user": {
-            "email": "test@example.com",
-            "password": "password123"
+            "email": test_user.email,
+            "password": "password123",
         }
     })
     token = response.json()["user"]["token"]

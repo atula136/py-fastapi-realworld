@@ -39,11 +39,9 @@ async def register_user(user: UserCreateWrapper, db: Session = Depends(get_db)):
 @router.post("/login/", response_model=UserResponseWrapper)
 async def login_user(user: UserLoginWrapper, db: Session = Depends(get_db)):
     print("NEIT - start login", user)
-    print(f"Session ID in login route: {id(db)}")
     user_data = user.user
     db_user = get_user_or_404(db, email=user_data.email)
     if not verify_password(user_data.password, db_user.password):
-        print("NEIT - error login", user_data.password)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Incorrect email or password"

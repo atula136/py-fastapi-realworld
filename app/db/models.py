@@ -12,8 +12,7 @@ class TodoItem(Base):
 
 # Association table for many-to-many relationship
 follows = Table(
-    'follows',
-    Base.metadata,
+    'follows', Base.metadata,
     Column('follower_id', Integer, ForeignKey('users.id')),
     Column('followed_id', Integer, ForeignKey('users.id'))
 )
@@ -29,7 +28,8 @@ class User(Base):
     # image = Column(String, nullable=True)
 
     # MySQL
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    # id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, index=True, nullable=False)
     email = Column(String(100), unique=True, index=True, nullable=False)
     password = Column(String(255), nullable=False)
@@ -47,6 +47,10 @@ class User(Base):
         secondaryjoin=id == follows.c.followed_id,
         backref='followers'
     )
+
+    def __repr__(self):
+        return f"<User {vars(self)}>"
+        # return f"<User(id={self.id}, username='{self.username}', email='{self.email}', bio='{self.bio}', image='{self.image}')>"
 
 class Article(Base):
     __tablename__ = "articles"

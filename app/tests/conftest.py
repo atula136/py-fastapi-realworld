@@ -29,7 +29,6 @@ def pytest_configure(config):
 @pytest.fixture(scope="session")
 def setup_test_database():
     # Drop the test database if it exists
-    print("\nNEIT", engine.url.database)
     if database_exists(engine.url):
         drop_database(engine.url)
         print("Existing test database dropped.")
@@ -56,7 +55,6 @@ def db_session(setup_test_database):
     transaction = connection.begin()
     session = TestingSessionLocal(bind=connection)
 
-    print(f"Session ID on yield: {id(session)}")
     yield session
 
     session.close()
@@ -75,7 +73,6 @@ def override_get_db(session):
 @pytest.fixture(scope="function")
 def test_client(db_session):
     """Create test client with db dependency overridden"""
-    print(f"Session ID in create client: {id(db_session)}")
     app.dependency_overrides[get_db] = override_get_db(db_session)  # Ensure get_db uses the same session
     with TestClient(app) as client:
         yield client
